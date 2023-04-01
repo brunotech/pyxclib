@@ -121,10 +121,9 @@ def compare_nearest_neighbors(tr_embedding, tr_text, ts_embedding=None,
                             num_threads=num_threads)
     graph.fit(tr_embedding)
 
-    for _, idx in enumerate(sample_indices):
+    for idx in sample_indices:
         ind, dist = graph.predict(ts_embedding[idx].reshape(1, -1))
         # Returns as list of list
         ind, dist = ind[0], dist[0]
         temp = _as_string(itemgetter(*ind)(tr_text), dist)
-        print("Index: {}, Original text: {}, Neighbors: {}\n".format(
-                idx, ts_text[idx], temp))
+        print(f"Index: {idx}, Original text: {ts_text[idx]}, Neighbors: {temp}\n")

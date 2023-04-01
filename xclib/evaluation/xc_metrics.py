@@ -31,13 +31,14 @@ def compatible_shapes(x, y):
         return x.shape == y.shape
 
     # compare #rows if one is sparse and other is dict or np.ndarray
-    if not (isinstance(x, dict) or isinstance(y, dict)):
-        return x.shape[0] == y.shape[0]
+    if isinstance(x, dict) or isinstance(y, dict):
+        return (
+            len(x['indices']) == len(x['scores']) == y.shape[0]
+            if isinstance(x, dict)
+            else len(y['indices']) == len(y['scores']) == x.shape[0]
+        )
     else:
-        if isinstance(x, dict):
-            return len(x['indices']) == len(x['scores']) == y.shape[0]
-        else:
-            return len(y['indices']) == len(y['scores']) == x.shape[0]
+        return x.shape[0] == y.shape[0]
 
 
 def jaccard_similarity(pred_0, pred_1, copy=True, y=None):
@@ -78,10 +79,10 @@ def jaccard_similarity(pred_0, pred_1, copy=True, y=None):
 
 
 def format(*args, decimal_points='%0.2f'):
-    out = []
-    for vals in args:
-        out.append(
-            ','.join(list(map(lambda x: decimal_points % (x*100), vals))))
+    out = [
+        ','.join(list(map(lambda x: decimal_points % (x * 100), vals)))
+        for vals in args
+    ]
     return '\n'.join(out)
 
 
@@ -109,7 +110,7 @@ def _get_topk(X, pad_indx=0, k=5, sorted=False):
         indices = topk(X, k, pad_indx, 0, return_values=False)
     elif type(X) == np.ndarray:
         # indices are given
-        assert X.shape[1] >= k, "Number of elements in X is < {}".format(k)
+        assert X.shape[1] >= k, f"Number of elements in X is < {k}"
         if np.issubdtype(X.dtype, np.integer):
             assert sorted, "sorted must be true with indices"
             indices = X[:, :k] if X.shape[1] > k else X
@@ -124,11 +125,10 @@ def _get_topk(X, pad_indx=0, k=5, sorted=False):
     elif type(X) == dict:
         indices = X['indices']
         scores = X['scores']
-        assert compatible_shapes(indices, scores), \
-            "Dimension mis-match: expected array of shape {} found {}".format(
-                indices.shape, scores.shape)
-        assert scores.shape[1] >= k, "Number of elements in X is < {}".format(
-            k)
+        assert compatible_shapes(
+            indices, scores
+        ), f"Dimension mis-match: expected array of shape {indices.shape} found {scores.shape}"
+        assert scores.shape[1] >= k, f"Number of elements in X is < {k}"
         # assumes indices are already sorted by the user
         if sorted:
             return indices[:, :k] if indices.shape[1] > k else indices
@@ -142,10 +142,9 @@ def _get_topk(X, pad_indx=0, k=5, sorted=False):
             # sort top-k entries
             __indices = np.argsort(-_scores, axis=-1)
             _indices = np.take_along_axis(_indices, __indices, axis=-1)
-            indices = np.take_along_axis(indices, _indices, axis=-1)
         else:
             _indices = np.argsort(-scores, axis=-1)
-            indices = np.take_along_axis(indices, _indices, axis=-1)
+        indices = np.take_along_axis(indices, _indices, axis=-1)
     else:
         raise NotImplementedError(
             "Unknown type; please pass csr_matrix, np.ndarray or dict.")

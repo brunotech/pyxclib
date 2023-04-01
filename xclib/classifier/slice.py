@@ -117,7 +117,7 @@ class Slice(BaseClassifier):
             num_threads=self.num_threads,
             order=order)
         self.classifiers = None
-        self.logger.info("Parameters:: {}".format(str(self)))
+        self.logger.info(f"Parameters:: {str(self)}")
 
     def get_data_loader(self, data_dir, dataset, feat_fname,
                         label_fname, mode, batch_order):
@@ -185,8 +185,7 @@ class Slice(BaseClassifier):
         weights, biases = [], []
         start_time = time.time()
         self.logger.info("Training classifiers!")
-        idx = 0
-        for batch_data in tqdm(data):
+        for idx, batch_data in enumerate(tqdm(data)):
             start_time = time.time()
             batch_weight, batch_bias = self._train(
                 batch_data, self.num_threads)
@@ -198,11 +197,11 @@ class Slice(BaseClassifier):
                 # TODO: Delete these to save RAM?
                 self._merge_weights(weights, biases)
                 self._save_state(model_dir, idx)
-                self.logger.info("Saved state at epoch: {}".format(idx))
-            idx += 1
+                self.logger.info(f"Saved state at epoch: {idx}")
         self._merge_weights(weights, biases)
-        self.logger.info("Training time (sec): {}, model size (MB): {}".format(
-            run_time, self.model_size))
+        self.logger.info(
+            f"Training time (sec): {run_time}, model size (MB): {self.model_size}"
+        )
 
     def _train(self, data, num_threads):
         """
@@ -237,7 +236,7 @@ class Slice(BaseClassifier):
         predicted = SMatrix(
             n_rows=num_instances,
             n_cols=self.num_labels,
-            nnz=top_k)        
+            nnz=top_k)
         start_time = time.time()
         start_idx = 0
         # This is required so that it doesn't set/print
@@ -272,8 +271,8 @@ class Slice(BaseClassifier):
             del x_, w_, b_
         end_time = time.time()
         self.logger.info(
-            "Prediction time/sample (ms): {}".format(
-                (end_time-start_time)*1000/num_instances))
+            f"Prediction time/sample (ms): {(end_time - start_time) * 1000 / num_instances}"
+        )
         return self._map_to_original(predicted.data()[:, :-1])
 
     def _map_to_original(self, X):

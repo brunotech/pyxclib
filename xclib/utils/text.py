@@ -169,12 +169,12 @@ class BaseExtractor(VectorizerMixin):
         if max_df < 0 or min_df < 0:
             raise ValueError("negative value for max_df or min_df")
         self.max_features = max_features
-        if max_features is not None:
-            if (not isinstance(max_features, numbers.Integral) or
-                    max_features <= 0):
-                raise ValueError(
-                    "max_features=%r, neither a positive integer nor None"
-                    % max_features)
+        if max_features is not None and (
+            not isinstance(max_features, numbers.Integral) or max_features <= 0
+        ):
+            raise ValueError(
+                "max_features=%r, neither a positive integer nor None"
+                % max_features)
         self.vocabulary = vocabulary
         self.max_len = max_len
 
@@ -261,8 +261,9 @@ class BaseExtractor(VectorizerMixin):
                 tokenize(preprocess(self.decode(doc))), stop_words)
 
         else:
-            raise ValueError('%s is not a valid tokenization scheme/analyzer' %
-                             self.analyzer)
+            raise ValueError(
+                f'{self.analyzer} is not a valid tokenization scheme/analyzer'
+            )
 
     def _limit_features(self, vocabulary, df, tf, high, low):
         """Remove too rare or too common features.
@@ -534,7 +535,8 @@ class BoWFeatures(BaseExtractor):
             """Construct an array.array of a type suitable
             for scipy.sparse indices.
             """
-            return array.array(str("i"))
+            return array.array("i")
+
         analyze = self.build_analyzer()
         j_indices = []
         indptr = []

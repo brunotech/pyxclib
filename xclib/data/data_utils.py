@@ -100,8 +100,7 @@ def write_sparse_file(X, filename, header=True):
         for y in X:
             idx = y.__dict__['indices']
             val = y.__dict__['data']
-            sentence = ' '.join(['{}:{}'.format(x, v)
-                                 for x, v in zip(idx, val)])
+            sentence = ' '.join([f'{x}:{v}' for x, v in zip(idx, val)])
             print(sentence, file=f)
 
 
@@ -253,9 +252,9 @@ def read_sparse_file(file, n_features=None, dtype='float32', zero_based=True,
         if n_features is None:
             n_features = n_f
         elif n_features < n_f:
-            raise ValueError("n_features was set to {},"
-                             " but input file contains {} features"
-                             .format(n_features, n_f))
+            raise ValueError(
+                f"n_features was set to {n_features}, but input file contains {n_f} features"
+            )
 
         shape = (indptr.shape[0] - 1, n_features)
         # Throw warning if shapes do not match
@@ -282,10 +281,7 @@ def read_sparse_file(file, n_features=None, dtype='float32', zero_based=True,
         # Will sum if indices are repeated
         X = csr_matrix((data, (rows, cols)), shape=_header_shape)
     X.sort_indices()
-    if query_id:
-        return tuple(X, query_values)
-    else:
-        return X
+    return tuple(X, query_values) if query_id else X
 
 
 def write_data(filename, features, labels, header=True):
@@ -302,8 +298,7 @@ def write_data(filename, features, labels, header=True):
     """
     if header:
         with open(filename, 'w') as f:
-            out = "{} {} {}".format(
-                features.shape[0], features.shape[1], labels.shape[1])
+            out = f"{features.shape[0]} {features.shape[1]} {labels.shape[1]}"
             print(out, file=f)
         with open(filename, 'ab') as f:
             dump_svmlight_file(features, labels, f, multilabel=True)

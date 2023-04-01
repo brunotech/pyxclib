@@ -12,8 +12,7 @@ def compute_inv_propensity(train_file, A, B):
             Others: 0.55/1.5
     """
     train_labels = data_utils.read_sparse_file(train_file)
-    inv_propen = xc_metrics.compute_inv_propesity(train_labels, A, B)
-    return inv_propen
+    return xc_metrics.compute_inv_propesity(train_labels, A, B)
 
 
 def main(targets_file, train_file, predictions_file, A, B):

@@ -139,9 +139,9 @@ def _get_liblinear_solver_type(multi_class, penalty, loss, dual):
         raise ValueError("`multi_class` must be one of `ovr`, "
                          "`crammer_singer`, got %r" % multi_class)
 
-    _solver_pen = _solver_type_dict.get(loss, None)
+    _solver_pen = _solver_type_dict.get(loss)
     if _solver_pen is None:
-        error_string = ("loss='%s' is not supported" % loss)
+        error_string = f"loss='{loss}' is not supported"
     else:
         _solver_dual = _solver_pen.get(penalty, None)
         if _solver_dual is None:

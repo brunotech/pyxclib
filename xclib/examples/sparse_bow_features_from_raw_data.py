@@ -19,8 +19,8 @@ def read(fname):
 
 
 def max_feature_index(trn_labels, tst_labels):
-    max_ind = max([max(item) for item in trn_labels])
-    return max(max_ind, max([max(item) for item in tst_labels]))
+    max_ind = max(max(item) for item in trn_labels)
+    return max(max_ind, max(max(item) for item in tst_labels))
 
 
 def process(trn_fname, tst_fname, encoding='latin',

@@ -69,7 +69,7 @@ class MIPS(BaseClassifier):
             (data.num_samples, data.num_valid_labels), dtype=np.float32)
         start_time = time.time()
         start_idx = 0
-        for _, batch_data in enumerate(data):
+        for batch_data in data:
             batch_size = len(batch_data['ind'])
             shortlist_indices, shortlist_dist = self.shorty.query(
                 batch_data['data'][batch_data['ind']])
@@ -79,7 +79,8 @@ class MIPS(BaseClassifier):
             start_idx += batch_size
         end_time = time.time()
         self.logger.info(
-            "Prediction time/sample (ms): {}".format((end_time-start_time)*1000/data.num_samples))
+            f"Prediction time/sample (ms): {(end_time - start_time) * 1000 / data.num_samples}"
+        )
         return predicted
 
     def save(self, fname):
@@ -87,16 +88,14 @@ class MIPS(BaseClassifier):
                      'num_labels': self.num_labels,
                      'label_embeddings': self.label_embeddings},
                     open(fname, 'wb'))
-        self.shorty.save(fname+".shortlist")
+        self.shorty.save(f"{fname}.shortlist")
 
     def load(self, fname):
         temp = pickle.load(open(fname, 'rb'))
         self.label_embeddings = temp['label_embeddings']
         self.use_sparse = temp['use_sparse']
         self.num_labels = temp['num_labels']
-        self.shorty.load(fname+'.shortlist')
+        self.shorty.load(f'{fname}.shortlist')
 
     def __repr__(self):
-        return "#Labels: {}, efC: {}, efS: {}, M: {}, num_nbrs: {}".format(self.num_labels,
-                                                                           self.shorty.efS, self.shorty.efC,
-                                                                           self.shorty.M, self.num_neighbours)
+        return f"#Labels: {self.num_labels}, efC: {self.shorty.efS}, efS: {self.shorty.efC}, M: {self.shorty.M}, num_nbrs: {self.num_neighbours}"

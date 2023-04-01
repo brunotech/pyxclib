@@ -142,10 +142,9 @@ class DenseFeatures(FeaturesBase):
     def load(self, data_dir, fname, X):
         if X is not None:
             return super().load(data_dir, fname, X)
-        else:
-            assert fname is not None, "Filename can not be None."
-            fname = os.path.join(data_dir, fname)
-            return data_utils.read_gen_dense(fname)
+        assert fname is not None, "Filename can not be None."
+        fname = os.path.join(data_dir, fname)
+        return data_utils.read_gen_dense(fname)
 
 
 class SparseFeatures(FeaturesBase):
@@ -171,10 +170,9 @@ class SparseFeatures(FeaturesBase):
     def load(self, data_dir, fname, X):
         if X is not None:
             return super().load(data_dir, fname, X)
-        else:
-            assert fname is not None, "Filename can not be None."
-            fname = os.path.join(data_dir, fname)
-            return data_utils.read_gen_sparse(fname)
+        assert fname is not None, "Filename can not be None."
+        fname = os.path.join(data_dir, fname)
+        return data_utils.read_gen_sparse(fname)
 
     def normalize(self, norm='l2', copy=False):
         self.X = scale(self.X, copy=copy, norm=norm)

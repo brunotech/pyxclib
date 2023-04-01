@@ -72,12 +72,13 @@ def _update_predicted_shortlist(start_idx, predicted_batch_labels,
 def save_predictions(preds, result_dir, valid_labels, num_samples, 
                      num_labels, _fnames=['knn', 'clf']):
     if isinstance(preds, tuple):
-        for _, (_pred, _fname) in enumerate(zip(preds, _fnames)):
+        for _pred, _fname in zip(preds, _fnames):
             predicted_labels = map_to_original(
                 _pred, valid_labels, _shape=(num_samples, num_labels))
-            save_npz(os.path.join(
-                result_dir, 'predictions_{}.npz'.format(
-                    _fname)), predicted_labels)
+            save_npz(
+                os.path.join(result_dir, f'predictions_{_fname}.npz'),
+                predicted_labels,
+            )
     else:
         predicted_labels = map_to_original(
             preds, valid_labels, _shape=(num_samples, num_labels))

@@ -28,10 +28,7 @@ def bin_index(array, item): # Binary search
 @nb.njit(cache=True)
 def safe_normalize(array):
     _max = np.max(array)
-    if _max != 0:
-        return array/_max
-    else:
-        return array
+    return array/_max if _max != 0 else array
 
 
 @nb.njit(nb.types.Tuple(
@@ -208,8 +205,7 @@ class Shortlist(object):
         return _size
 
     def __repr__(self):
-        return "efC: {}, efS: {}, M: {}, num_nbrs: {}, num_threads: {}".format(
-            self.efS, self.efC, self.M, self.num_neighbours, self.num_threads)
+        return f"efC: {self.efS}, efS: {self.efC}, M: {self.M}, num_nbrs: {self.num_neighbours}, num_threads: {self.num_threads}"
 
 
 class ShortlistCentroids(Shortlist):
@@ -272,7 +268,7 @@ class ShortlistCentroids(Shortlist):
         freq = np.array(labels.sum(axis=0)).ravel()
         if np.max(freq) > self.threshold and self.num_clusters > 1:
             self.ext_head = np.where(freq >= self.threshold)[0]
-            print("Found {} super-head labels".format(len(self.ext_head)))
+            print(f"Found {len(self.ext_head)} super-head labels")
             self.mapping = np.arange(label_centroids.shape[0])
             for idx in self.ext_head:
                 self.mapping = np.append(
@@ -300,12 +296,12 @@ class ShortlistCentroids(Shortlist):
             indices, sims, self.mapping, self.pad_ind, self.pad_val)
 
     def load(self, fname):
-        temp = pickle.load(open(fname+".metadata", 'rb'))
+        temp = pickle.load(open(f"{fname}.metadata", 'rb'))
         self.pad_ind = temp['pad_ind']
         self.pad_val = temp['pad_val']
         self.mapping = temp['mapping']
         self.ext_head = temp['ext_head']
-        super().load(fname+".index")
+        super().load(f"{fname}.index")
 
     def save(self, fname):
         metadata = {
@@ -314,15 +310,15 @@ class ShortlistCentroids(Shortlist):
             'mapping': self.mapping,
             'ext_head': self.ext_head
         }
-        pickle.dump(metadata, open(fname+".metadata", 'wb'))
-        super().save(fname+".index")
+        pickle.dump(metadata, open(f"{fname}.metadata", 'wb'))
+        super().save(f"{fname}.index")
 
     def purge(self, fname):
         # purge files from disk
-        if os.path.isfile(fname+".index"):
-            os.remove(fname+".index")
-        if os.path.isfile(fname+".metadata"):
-            os.remove(fname+".metadata")
+        if os.path.isfile(f"{fname}.index"):
+            os.remove(f"{fname}.index")
+        if os.path.isfile(f"{fname}.metadata"):
+            os.remove(f"{fname}.metadata")
 
     def __repr__(self):
         s = "efC: {efC}, efS: {efS}, M: {M}, num_nbrs: {num_neighbours}" \
@@ -405,22 +401,25 @@ class ShortlistInstances(Shortlist):
         return indices, similarities
 
     def save(self, fname):
-        self.index.save(fname+".index")
+        self.index.save(f"{fname}.index")
         pickle.dump(
-            {'labels': self.labels,
-             'M': self.M, 'efC': self.efC,
-             'efS': self.efS,
-             'pad_ind': self.pad_ind,
-             'pad_val': self.pad_val,
-             'num_neighbours': self._num_neighbours,
-             'space': self.space}, 
-             open(fname+".metadata", 'wb'),
-             protocol=4)
+            {
+                'labels': self.labels,
+                'M': self.M,
+                'efC': self.efC,
+                'efS': self.efS,
+                'pad_ind': self.pad_ind,
+                'pad_val': self.pad_val,
+                'num_neighbours': self._num_neighbours,
+                'space': self.space,
+            },
+            open(f"{fname}.metadata", 'wb'),
+            protocol=4,
+        )
 
     def load(self, fname):
-        self.index.load(fname+".index")
-        obj = pickle.load(
-            open(fname+".metadata", 'rb'))
+        self.index.load(f"{fname}.index")
+        obj = pickle.load(open(f"{fname}.metadata", 'rb'))
         self._num_neighbours = obj['num_neighbours']
         self.efS = obj['efS']
         self.space = obj['space']
@@ -430,10 +429,10 @@ class ShortlistInstances(Shortlist):
 
     def purge(self, fname):
         # purge files from disk
-        if os.path.isfile(fname+".index"):
-            os.remove(fname+".index")
-        if os.path.isfile(fname+".metadata"):
-            os.remove(fname+".metadata")
+        if os.path.isfile(f"{fname}.index"):
+            os.remove(f"{fname}.index")
+        if os.path.isfile(f"{fname}.metadata"):
+            os.remove(f"{fname}.metadata")
 
     def __repr__(self):
         s = "efC: {efC}, efS: {efS}, M: {M}, num_nbrs: {_num_neighbours}" \

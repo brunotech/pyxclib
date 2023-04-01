@@ -60,10 +60,7 @@ def topk(X, k, pad_ind, pad_val, return_values=False, dtype='float32'):
         topk val; size=(num_rows, k)
     """
     ind, val = _topk(X.data, X.indices, X.indptr, k, pad_ind, pad_val)
-    if return_values:
-        return ind, val.astype(dtype)
-    else:
-        return ind
+    return (ind, val.astype(dtype)) if return_values else ind
 
 
 def retain_topk(X, copy=True, k=5):
@@ -391,6 +388,5 @@ def compute_centroid(X, Y, reduction='sum', _binarize=False, copy=True):
         freq[freq == 0] = 1  # avoid division by zero
         centroids = centroids.multiply(1/freq)
     else:
-        raise NotImplementedError(
-            "Reduction {} not yet implemented.".format(reduction))
+        raise NotImplementedError(f"Reduction {reduction} not yet implemented.")
     return centroids

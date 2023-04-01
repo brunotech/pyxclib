@@ -71,10 +71,7 @@ class DataloaderBase(object):
         Labels can also be supplied directly
         """
         # Pass dummy labels if required
-        if self.batch_order == 'labels':
-            _format = 'csc'
-        else:
-            _format = 'csr'
+        _format = 'csc' if self.batch_order == 'labels' else 'csr'
         return LabelsBase(data_dir, fname, _format=_format)
 
     def load_data(self, data_dir, fname_f, fname_l):
@@ -117,11 +114,11 @@ class DataloaderBase(object):
         self._gen_batches()
 
     def _create_instance_batch(self, batch_indices):
-        batch_data = {}
-        batch_data['data'] = self.features.data
-        batch_data['ind'] = batch_indices
-        batch_data['Y'] = self.labels.index_select(batch_indices, axis=0)
-        return batch_data
+        return {
+            'data': self.features.data,
+            'ind': batch_indices,
+            'Y': self.labels.index_select(batch_indices, axis=0),
+        }
 
     def _gen_batches(self):
         if self.batch_order == 'labels':
@@ -201,13 +198,10 @@ class Dataloader(DataloaderBase):
     def _create_label_batch(self, batch_indices):
         batch_data = []
         for idx in batch_indices:
-            item = {}
             pos_indices = self.labels.index_select(idx).indices
             batch_labels = -1*np.ones((self.num_instances,), dtype=np.float32)
             batch_labels[pos_indices] = 1
-            item['ind'] = None  # SVM won't slice data
-            item['data'] = self.features.data
-            item['Y'] = batch_labels  # +1/-1 for SVM
+            item = {'ind': None, 'data': self.features.data, 'Y': batch_labels}
             batch_data.append(item)
         return batch_data
 
@@ -218,9 +212,8 @@ class Dataloader(DataloaderBase):
             return self._create_instance_batch(batch_indices)
 
     def __iter__(self):
-        for _, batch_indices in enumerate(self.batches):
-            batch_data = self._create_batch(batch_indices)
-            yield batch_data
+        for batch_indices in self.batches:
+            yield self._create_batch(batch_indices)
 
 
 class DataloaderShortlist(DataloaderBase):
@@ -267,8 +260,7 @@ class DataloaderShortlist(DataloaderBase):
     def _create_label_batch(self, batch_indices):
         batch_data = []
         for idx in batch_indices:
-            item = {}
-            item['data'] = self.features.data
+            item = {'data': self.features.data}
             #  TODO Check if this could be done more efficiently
             temp = self.labels.index_select(idx)
             item['ind'] = temp.indices
@@ -303,6 +295,5 @@ class DataloaderShortlist(DataloaderBase):
             (data, (rows, cols)), shape=(self.num_instances, self.num_labels))
 
     def __iter__(self):
-        for _, batch_indices in enumerate(self.batches):
-            batch_data = self._create_batch(batch_indices)
-            yield batch_data
+        for batch_indices in self.batches:
+            yield self._create_batch(batch_indices)

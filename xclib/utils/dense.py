@@ -25,13 +25,13 @@ def topk(values, indices=None, k=10, sorted=False):
         assert values.shape == indices.shape, \
             f"Shape of values {values.shape} != indices {indices.shape}"
         # Don't do anything if n_cols = k or k = -1
-        if k == indices.shape[1] or k == -1:
+        if k in [indices.shape[1], -1]:
             return indices, values
-    if not sorted:
-        ind = np.argpartition(values, -k)[:, -k:]
-    else:
-        ind = np.argpartition(
-            values, list(range(-k, 0)))[:, -k:][:, ::-1]
+    ind = (
+        np.argpartition(values, list(range(-k, 0)))[:, -k:][:, ::-1]
+        if sorted
+        else np.argpartition(values, -k)[:, -k:]
+    )
     val = np.take_along_axis(values, ind, axis=-1)
     if indices is not None:
         ind = np.take_along_axis(indices, ind, axis=-1)
@@ -69,8 +69,7 @@ def compute_centroid(X, Y, reduction='sum', binarize=True, copy=True):
         freq[freq == 0] = 1.0  # Avoid division by zero
         centroids = centroids/freq
     else:
-        raise NotImplementedError(
-            "Reduction {} not yet implemented.".format(reduction))
+        raise NotImplementedError(f"Reduction {reduction} not yet implemented.")
     return centroids
 
 
@@ -115,6 +114,5 @@ def compute_dense_features(X, embeddings, reduction='sum', normalize=True,
         temp[temp == 0] = 1.0  # Avoid division by zero
         document_embeddings = document_embeddings/temp
     else:
-        raise NotImplementedError(
-            "Reduction {} not yet implemented.".format(reduction))
+        raise NotImplementedError(f"Reduction {reduction} not yet implemented.")
     return document_embeddings

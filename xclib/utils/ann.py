@@ -169,14 +169,14 @@ class HNSWLib(object):
         return indices, distances
 
     def save(self, fname):   
-        with open(fname+".params", 'wb') as fp:
+        with open(f"{fname}.params", 'wb') as fp:
             pickle.dump({'dim': self.dim,
                          'max_elements': self.max_elements}, fp
                         )
         self.index.save_index(fname)
 
     def load(self, fname):
-        with open(fname+".params", 'rb') as fp:
+        with open(f"{fname}.params", 'rb') as fp:
             obj = pickle.load(fp)
             self.dim = obj['dim']
             self.max_elements = obj['max_elements']

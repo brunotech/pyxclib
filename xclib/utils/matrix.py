@@ -35,13 +35,15 @@ class SMatrix(object):
         self.pad_ind = n_cols
         self.pad_val = pad_val
         self.indices = self._array(
-            fname + ".ind" if fname is not None else None,
+            f"{fname}.ind" if fname is not None else None,
             fill_value=self.pad_ind,
-            dtype='int64')
+            dtype='int64',
+        )
         self.values = self._array(
-            fname + ".val" if fname is not None else None,
+            f"{fname}.val" if fname is not None else None,
             fill_value=self.pad_val,
-            dtype='float32')
+            dtype='float32',
+        )
 
     def _array(self, fname, fill_value, dtype):
         if fname is None:
@@ -59,14 +61,13 @@ class SMatrix(object):
         """Returns the predictions as a csr_matrix or indices & values arrays
         """
         self.flush()
-        if format == 'sparse':
-            if not self.in_memory:
-                warnings.warn("Files on disk; will create copy in memory.")
-            return csr_from_arrays(
-                self.indices, self.values,
-                shape=(self.n_rows, self.n_cols+1))[:, :-1]
-        else:
+        if format != 'sparse':
             return self.indices, self.values
+        if not self.in_memory:
+            warnings.warn("Files on disk; will create copy in memory.")
+        return csr_from_arrays(
+            self.indices, self.values,
+            shape=(self.n_rows, self.n_cols+1))[:, :-1]
 
     def update(self, ind, val):
         ind = np.array(ind, dtype='int64')

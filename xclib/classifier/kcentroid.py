@@ -57,7 +57,7 @@ class KCentroidClassifier(BaseClassifier):
             space=space)
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger('KCentroid')
-        self.logger.info("Parameters:: {}".format(str(self)))
+        self.logger.info(f"Parameters:: {str(self)}")
 
     def get_data_loader(self, data_dir, dataset, feat_fname,
                         label_fname, mode, batch_order):
@@ -111,8 +111,8 @@ class KCentroidClassifier(BaseClassifier):
         self.shorty.fit(data.features.data, data.labels.data)
         end_time = time.time()
         self.logger.info(
-            "Train time (sec): {}, Model size (MB): {}".format(
-                end_time-start_time, self.model_size))
+            f"Train time (sec): {end_time - start_time}, Model size (MB): {self.model_size}"
+        )
 
     def predict(self, data_dir, dataset, feat_fname, label_fname, top_k=10):
         """Predict for given instances
@@ -142,8 +142,8 @@ class KCentroidClassifier(BaseClassifier):
         predicted = sparse.retain_topk(predicted, k=top_k)
         end_time = time.time()
         self.logger.info(
-            "Prediction time/sample (ms): {}".format(
-                (end_time-start_time)*1000/data.num_instances))
+            f"Prediction time/sample (ms): {(end_time - start_time) * 1000 / data.num_instances}"
+        )
         return self._map_to_original(predicted[:, :-1])
 
     def save(self, fname):

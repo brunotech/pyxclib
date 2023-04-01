@@ -86,7 +86,7 @@ class OVAClassifier(BaseClassifier):
         self.num_labels_ = None
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger('OVAClassifier')
-        self.logger.info("Parameters:: {}".format(str(self)))
+        self.logger.info(f"Parameters:: {str(self)}")
 
     def _merge_weights(self, weights, biases):
         # Bias is always a dense array
@@ -153,8 +153,7 @@ class OVAClassifier(BaseClassifier):
         weights, biases = [], []
         run_time = 0.0
         start_time = time.time()
-        idx = 0
-        for batch_data in tqdm(data):
+        for idx, batch_data in enumerate(tqdm(data)):
             start_time = time.time()
             batch_weight, batch_bias = self._train(
                 batch_data, self.num_threads)
@@ -169,11 +168,11 @@ class OVAClassifier(BaseClassifier):
                 #  TODO: Delete these to save memory?
                 self._merge_weights(weights, biases)
                 self._save_state(model_dir, idx)
-                self.logger.info("Saved state at epoch: {}".format(idx))
-            idx += 1
+                self.logger.info(f"Saved state at epoch: {idx}")
         self._merge_weights(weights, biases)
-        self.logger.info("Training time (sec): {}, model size (MB): {}".format(
-            run_time, self.model_size))
+        self.logger.info(
+            f"Training time (sec): {run_time}, model size (MB): {self.model_size}"
+        )
 
     def _train(self, data, num_threads):
         """Train SVM for multiple labels
@@ -221,7 +220,7 @@ class OVAClassifier(BaseClassifier):
         predicted_labels = SMatrix(
             n_rows=num_instances,
             n_cols=self.num_labels,
-            nnz=top_k)        
+            nnz=top_k)
         start_time = time.time()
         start_idx = 0
         for batch_data in tqdm(data):
@@ -234,8 +233,8 @@ class OVAClassifier(BaseClassifier):
             start_idx += pred.shape[0]
         end_time = time.time()
         self.logger.info(
-            "Prediction time/sample (ms): {}".format(
-                (end_time-start_time)*1000/num_instances))
+            f"Prediction time/sample (ms): {(end_time - start_time) * 1000 / num_instances}"
+        )
         return self._map_to_original(predicted_labels.data())
 
     def _get_partial_train(self):

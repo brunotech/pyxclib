@@ -8,7 +8,7 @@ def _get_fname(params):
     os.makedirs(params.model_dir, exist_ok=True)
     _ext = ""
     if params.start_index != 0 or params.end_index != -1:
-        _ext = "_{}_{}".format(params.start_index, params.end_index)
+        _ext = f"_{params.start_index}_{params.end_index}"
     model_fname = os.path.join(params.model_dir, params.model_fname+_ext)
     return model_fname
 
@@ -55,17 +55,16 @@ def create_classifier(params):
                            efS=params.efS,
                            num_neighbours=params.num_neighbours,
                            num_threads=params.num_threads)
-    if params.clf_type == 'knn':
-        if params.feature_type == 'sparse':
-            raise NotImplementedError("KNN not tested with sparse features.")
-        return knn.KNNClassifier(
-                           M=params.M,
-                           efC=params.efC,
-                           efS=params.efS,
-                           num_neighbours=params.num_neighbours,
-                           num_threads=params.num_threads)
-    else:
+    if params.clf_type != 'knn':
         raise NotImplementedError("Unknown classifier!")
+    if params.feature_type == 'sparse':
+        raise NotImplementedError("KNN not tested with sparse features.")
+    return knn.KNNClassifier(
+                       M=params.M,
+                       efC=params.efC,
+                       efS=params.efS,
+                       num_neighbours=params.num_neighbours,
+                       num_threads=params.num_threads)
 
 
 def main(params):

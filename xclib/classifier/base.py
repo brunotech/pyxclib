@@ -34,19 +34,18 @@ class BaseClassifier(object):
         self.bias = None
 
     def _save_state(self, model_dir, epoch):
-        fname = os.path.join(model_dir, 'model_state_{}.pkl'.format(epoch))
+        fname = os.path.join(model_dir, f'model_state_{epoch}.pkl')
         pickle.dump({self.__dict__}, open(fname, 'wb'))
 
     @property
     def model_size(self):
         _size = 0
-        if self.weight is not None:
-            if isinstance(self.weight, np.ndarray):
-                _size += self.weight.size*4/math.pow(2, 20)
-            else:
-                _size += self.weight.nnz*4/math.pow(2, 20)
-        else:
+        if self.weight is None:
             raise AssertionError("Classifier is not yet trained!")
+        if isinstance(self.weight, np.ndarray):
+            _size += self.weight.size*4/math.pow(2, 20)
+        else:
+            _size += self.weight.nnz*4/math.pow(2, 20)
         if self.bias is not None:
             if isinstance(self.bias, np.ndarray):
                 _size += self.bias.size*4/math.pow(2, 20)
@@ -76,8 +75,7 @@ class BaseClassifier(object):
             print("Model not found at specified path.")
 
     def __repr__(self):
-        return "num_labels: {}, feature_type: {}".format(
-            self.num_labels, self.feature_type)
+        return f"num_labels: {self.num_labels}, feature_type: {self.feature_type}"
 
     def evaluate(self, true_labels, predicted_labels):
         # TODO
